@@ -1,0 +1,20 @@
+{
+  "name": "superbloom",
+  "version": "1.0.0",
+  "description": "A web-based MIDI controller interface for SuperCollider that connects through an OSC bridge.",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.21.2",
+    "http": "^0.0.1-security",
+    "osc": "^2.4.5",
+    "path": "^0.12.7",
+    "ws": "^8.18.1"
+  }
+}
