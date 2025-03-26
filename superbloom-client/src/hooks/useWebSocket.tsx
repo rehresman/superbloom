@@ -1,13 +1,16 @@
 import { useEffect, useState, useRef } from "react";
 
-export const useWebSocket = () => {
+export const useWebSocket = ({ host }: { host: string }) => {
   const [loading, setLoading] = useState(true);
-  const [connected, setConnected] = useState(false);
+  const [connectionStatus, setConnectionStatus] = useState(false);
   const socketRef = useRef<WebSocket | null>(null); // Use ref to persist socket across renders
 
-  useEffect(() => {
+  const disconnect = () => {
+    socketRef.current && socketRef.current.close();
+  };
+
+  const setUpSocket = () => {
     const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-    const host = "localhost:3000";
     const wsUrl = `${protocol}//${host}`;
 
     setLoading(true);
@@ -16,19 +19,19 @@ export const useWebSocket = () => {
     socketRef.current = socket;
 
     socket.onopen = () => {
-      console.log("eh");
-      setConnected(true);
+      console.log("WebSocket connected");
+      setConnectionStatus(true);
       setLoading(false);
     };
 
     socket.onclose = () => {
-      setConnected(false);
+      setConnectionStatus(false);
       setLoading(false);
     };
 
     socket.onerror = (error) => {
       console.error("WebSocket error:", error);
-      setConnected(false);
+      setConnectionStatus(false);
       setLoading(false);
     };
 
@@ -42,14 +45,15 @@ export const useWebSocket = () => {
         console.error("Error parsing WebSocket message:", err);
       }
     };
+  };
 
+  useEffect(() => {
+    setUpSocket();
     // Cleanup function to close the WebSocket when the component unmounts
-    // return () => {
-    //   if (socketRef.current) {
-    //     socketRef.current.close();
-    //   }
-    // };
+    return () => {
+      disconnect();
+    };
   }, []); // Runs only once when the component mounts
 
-  return { loading, connected };
+  return { loading, connectionStatus, setUpSocket, disconnect };
 };

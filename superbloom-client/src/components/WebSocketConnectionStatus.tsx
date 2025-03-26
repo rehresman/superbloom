@@ -1,23 +1,22 @@
-import { useState } from "react";
 import { useWebSocket } from "../hooks/useWebSocket";
 
 export const WebSocketConnectionStatus = () => {
-  const [setWebSocketStatus, webSocketStatus] = useState(false);
-  const [setMidiStatus, MidiStatus] = useState(false);
-
-  const { loading, connected } = useWebSocket();
+  const host = "localhost:3000";
+  const { loading, connectionStatus, setUpSocket, disconnect } = useWebSocket({
+    host,
+  });
 
   return (
     <div>
       <h1>Connection</h1>
 
-      <div>{`Web Socket Connected: ${connected}`}</div>
+      <div>{`Web Socket Connected: ${connectionStatus}`}</div>
       <div>MIDI: Not connected</div>
-
       {loading ? <div>loading</div> : <div>not loading</div>}
-
       <span>
-        <button>Connect to OSC Bridge</button>
+        <button onClick={connectionStatus ? disconnect : setUpSocket}>
+          {connectionStatus ? "Disconnect" : "Connect to OSC Bridge"}
+        </button>
         <button>Enable Web MIDI</button>
       </span>
 
