@@ -3,12 +3,13 @@ const express = require('express');
 const http = require('http');
 const WebSocket = require('ws');
 const path = require('path');
-const osc = require('osc');
+//const osc = require('osc');
+//const initSC = require('./init.osc.js');
 
 // Create Express app and HTTP server
 const app = express();
 const server = http.createServer(app);
-
+/*
 // Create WebSocket server
 const wss = new WebSocket.Server({ server });
 
@@ -19,10 +20,11 @@ const udpPort = new osc.UDPPort({
   remoteAddress: "127.0.0.1",
   remotePort: 57120
 });
-
+*/
 // Serve static files from the public directory
 app.use(express.static(path.join(__dirname, 'public')));
 
+/*
 // Open the UDP port
 udpPort.open();
 
@@ -46,6 +48,20 @@ function cleanupThrottles() {
     }
   });
 }
+
+// Initialize SuperCollider once connected to a client
+let scInitialized = false;
+wss.on('connection', (ws, req) => {
+  // Your existing connection code...
+  
+  // Initialize SuperCollider if not already done
+  if (!scInitialized) {
+    console.log('Initializing SuperCollider...');
+    initSC();
+    scInitialized = true;
+  }
+}); 
+
 
 // Schedule regular cleanup
 setInterval(cleanupThrottles, 30000); // Every 30 seconds
@@ -152,7 +168,69 @@ let connectionCount = 0;
 const messageRates = {};
 const MESSAGE_RATE_LIMIT = 200; // messages per second
 const RATE_TRACKING_INTERVAL = 1000; // 1 second
+*/
+// Audio streaming proxy
+// Add this route to proxy the audio stream
+app.get('/audio.mp3', (req, res) => {
+  console.log('Audio stream requested');
+  
+  const request = http.request({
+    host: '127.0.0.1',
+    port: 8000,
+    path: '/audio.mp3',
+    method: 'GET'
+  }, (response) => {
+    console.log('Icecast responded with status:', response.statusCode);
+    
+    if (response.statusCode === 200) {
+      res.setHeader('Content-Type', 'audio/mpeg');
+      res.setHeader('Cache-Control', 'no-cache');
+      response.pipe(res);
+      console.log('Streaming audio to client');
+    } else {
+      console.error('Icecast returned non-200 status:', response.statusCode);
+      res.status(response.statusCode).send('Stream error');
+    }
+  });
+  
+  request.on('error', (err) => {
+    console.error('Error proxying stream:', err);
+    res.status(500).send('Stream error: ' + err.message);
+  });
+  
+  request.end();
+});
 
+// Audio diagnostics
+app.get('/check-stream', (req, res) => {
+  console.log('Checking if Icecast stream is available...');
+  
+  const request = http.request({
+    host: '127.0.0.1',
+    port: 8000,
+    path: '/status-json.xsl',
+    method: 'GET'
+  }, (response) => {
+    let data = '';
+    response.on('data', (chunk) => {
+      data += chunk;
+    });
+    
+    response.on('end', () => {
+      console.log('Icecast status response:', data);
+      res.send(`Icecast status: ${response.statusCode}<br>Data: ${data}`);
+    });
+  });
+  
+  request.on('error', (err) => {
+    console.error('Error checking Icecast:', err);
+    res.status(500).send(`Error checking Icecast: ${err.message}`);
+  });
+  
+  request.end();
+});
+
+/*
 // WebSocket connection handling
 wss.on('connection', (ws, req) => {
   // Limit number of connections
@@ -257,8 +335,23 @@ wss.on('connection', (ws, req) => {
     delete messageRates[connectionId];
   });
   
+  
   ws.on('error', (error) => {
     console.error('WebSocket error:', error);
+  });
+});
+
+// testing OSC message for supercollider init
+udpPort.on("ready", () => {
+  console.log("Initializing SuperCollider...");
+  
+  // Define a simple synth
+  udpPort.send({
+    address: "/d_recv",
+    args: [{
+      type: "blob",
+      value: Buffer.from('SynthDef.new("thrasher", { |freq=440, amp=0.1, gate=1| var sig = SinOsc.ar(freq) * amp * EnvGen.kr(Env.adsr(0.01, 0.1, 0.8, 0.1), gate, doneAction: 2); Out.ar(0, sig ! 2) }).store;')
+    }]
   });
 });
 
@@ -267,6 +360,7 @@ udpPort.on("error", (error) => {
   console.error("OSC error:", error);
 });
 
+*/
 // Memory usage monitoring
 const MEMORY_CHECK_INTERVAL = 5000; // Check memory every 5 seconds
 setInterval(() => {
@@ -300,10 +394,12 @@ process.on('SIGINT', () => {
       client.close();
     }
   });
-  
+
+  /*
   // Close UDP port
   udpPort.close();
-  
+  */
+
   // Close HTTP server
   server.close(() => {
     console.log('Server shutdown complete');
