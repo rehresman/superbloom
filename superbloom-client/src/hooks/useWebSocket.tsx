@@ -62,5 +62,11 @@ export const useWebSocket = ({
     };
   }, []); // Runs only once when the component mounts
 
-  return { loading, connectionStatus, setUpSocket, disconnect };
+  return {
+    loading,
+    connectionStatus,
+    socket: socketRef.current,
+    setUpSocket,
+    disconnect,
+  };
 };
