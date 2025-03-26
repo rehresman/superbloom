@@ -1,6 +1,12 @@
 import { useEffect, useState, useRef } from "react";
 
-export const useWebSocket = ({ host }: { host: string }) => {
+export const useWebSocket = ({
+  host,
+  onMessage,
+}: {
+  host: string;
+  onMessage?: { dataType: string; onMessageHandler: (data: any) => void };
+}) => {
   const [loading, setLoading] = useState(true);
   const [connectionStatus, setConnectionStatus] = useState(false);
   const socketRef = useRef<WebSocket | null>(null); // Use ref to persist socket across renders
@@ -36,10 +42,11 @@ export const useWebSocket = ({ host }: { host: string }) => {
     };
 
     socket.onmessage = (event) => {
+      if (!onMessage) return;
       try {
         const data = JSON.parse(event.data);
-        if (data.type === "osc") {
-          console.log("Processing OSC message");
+        if (data.type === onMessage.dataType) {
+          onMessage.onMessageHandler(data);
         }
       } catch (err) {
         console.error("Error parsing WebSocket message:", err);

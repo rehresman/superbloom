@@ -1,9 +1,11 @@
 import { useWebSocket } from "../hooks/useWebSocket";
+import { processOscMessage } from "../utils/webSocketUtils";
 
 export const WebSocketConnectionStatus = () => {
   const host = "localhost:3000";
   const { loading, connectionStatus, setUpSocket, disconnect } = useWebSocket({
     host,
+    onMessage: { dataType: "osc", onMessageHandler: processOscMessage },
   });
 
   return (
