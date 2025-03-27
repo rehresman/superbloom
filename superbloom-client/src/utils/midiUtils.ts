@@ -2,7 +2,7 @@
 let activeNotes = new Set();
 
 // Initialize Web MIDI API
-export const initMIDI = (socket) => {
+export const initMIDI = (socket: WebSocket | null) => {
   if (navigator.requestMIDIAccess) {
     navigator
       .requestMIDIAccess()
@@ -13,7 +13,7 @@ export const initMIDI = (socket) => {
 };
 
 // MIDI initialization successful
-export const onMIDISuccess = (access, socket) => {
+export const onMIDISuccess = (access, socket: WebSocket | null) => {
   const midiAccess = access;
   console.log("MIDI access granted");
 
@@ -43,7 +43,7 @@ export const onMIDISuccess = (access, socket) => {
 };
 
 // Handle incoming MIDI messages
-function onMIDIMessage(socket, message) {
+function onMIDIMessage(socket: WebSocket | null, message) {
   const data = message.data;
   const cmd = data[0] >> 4;
   //const channel = data[0] & 0xf;
@@ -78,7 +78,7 @@ function onMIDIMessage(socket, message) {
 }
 
 // Send MIDI note on
-export function noteOn(socket, note, velocity) {
+export function noteOn(socket: WebSocket | null, note, velocity) {
   activeNotes.add(note);
   sendOSC(socket, "/midi/noteon", [note, velocity]);
 
@@ -90,7 +90,7 @@ export function noteOn(socket, note, velocity) {
 }
 
 // Send MIDI note off
-export function noteOff(socket, note) {
+export function noteOff(socket: WebSocket | null, note) {
   activeNotes.delete(note);
   sendOSC(socket, "/midi/noteoff", [note, 0]);
 
@@ -103,7 +103,7 @@ export function noteOff(socket, note) {
 
 // Send OSC message through WebSocket
 //need to pass in socket
-function sendOSC(socket, address, args) {
+function sendOSC(socket: WebSocket | null, address, args) {
   if (socket && socket.readyState === WebSocket.OPEN) {
     const message = {
       type: "osc",
@@ -126,7 +126,7 @@ function sendOSC(socket, address, args) {
 }
 
 // Send MIDI control change
-function controlChange(socket, cc, value) {
+function controlChange(socket: WebSocket | null, cc, value) {
   sendOSC(socket, "/midi/cc", [cc, value]);
 }
 

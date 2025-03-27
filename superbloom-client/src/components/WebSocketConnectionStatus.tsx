@@ -74,7 +74,7 @@ export const WebSocketConnectionStatus = () => {
     connected: MIDIConnected,
     disconnectMIDI,
     connectMIDI,
-  } = useInitializeMIDI({ socket });
+  } = useInitializeMIDI(socket);
 
   return (
     <StyledConnectionContainer>

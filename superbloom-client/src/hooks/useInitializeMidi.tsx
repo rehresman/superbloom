@@ -8,7 +8,7 @@ export const useInitializeMIDI = (socket: WebSocket | null) => {
 
   // Function to handle successful MIDI access
   const onAccessSuccess = useCallback(
-    (midiAccess: MIDIAccess, socket) => {
+    (midiAccess: MIDIAccess, socket: WebSocket | null) => {
       midiAccessRef.current = midiAccess;
       onMIDISuccess(midiAccess, socket);
       setConnected(true);
