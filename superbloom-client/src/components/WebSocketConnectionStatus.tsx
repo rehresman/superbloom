@@ -9,7 +9,7 @@ const StyledConnectionContainer = styled.div({
   gap: "5px",
   flexDirection: "column",
   alignItems: "center",
-  width: "400px",
+  width: "500px",
   background: "grey",
   padding: "20px",
   borderRadius: "8px",
@@ -19,6 +19,7 @@ const StyledConnectionContainer = styled.div({
 const StyledConnectionStatus = styled.div<{ status: boolean }>(
   ({ status }) => ({
     backgroundColor: status ? "lightgreen" : "salmon",
+    opacity: status ? "100%" : "60%",
     borderRadius: "5px",
     padding: "5px",
     border: "1px solid",
@@ -27,18 +28,32 @@ const StyledConnectionStatus = styled.div<{ status: boolean }>(
     color: "black",
     fontWeight: "700",
     fontSize: "20px",
+    cursor: "not-allowed",
   })
 );
 
 const StyledConnectionButton = styled.button<{ status: boolean }>(
   ({ status }) => ({
     marginTop: "20px",
-    fontSize: "18px",
+    fontSize: "20px",
     fontWeight: "550",
     backgroundColor: status ? "salmon" : "lightgreen",
+    borderColor: status ? "salmon" : "lightgreen",
     color: "black",
+    borderRadius: "8px",
+    "&:hover": {
+      background: status
+        ? "linear-gradient(45deg, #ff6b6b, #ffcc5c)"
+        : "linear-gradient(45deg, lightgreen, #ffcc5c)",
+      cursor: "pointer",
+    },
   })
 );
+
+const StyledButtonContainer = styled.span({
+  display: "flex",
+  gap: "20px",
+});
 
 const StyledMIDICCOptimizationStatus = styled.div({
   backgroundColor: "lightgrey",
@@ -87,7 +102,7 @@ export const WebSocketConnectionStatus = () => {
           status={MIDIConnected}
         >{`MIDI Connected: ${MIDIConnected}`}</StyledConnectionStatus>
       </StyledConnectionStatusContainer>
-      <span>
+      <StyledButtonContainer>
         <StyledConnectionButton
           status={webSocketConnected}
           onClick={webSocketConnected ? disconnect : setUpSocket}
@@ -102,7 +117,7 @@ export const WebSocketConnectionStatus = () => {
         >
           {MIDIConnected ? "Disconnect MIDI" : "Connect MIDI"}
         </StyledConnectionButton>
-      </span>
+      </StyledButtonContainer>
 
       <StyledMIDICCOptimizationStatus>
         MIDI CC Optimization: Enabled
