@@ -14,7 +14,6 @@ export const initMIDI = (socket) => {
 
 // MIDI initialization successful
 export const onMIDISuccess = (access, socket) => {
-  console.log("access", access);
   const midiAccess = access;
   console.log("MIDI access granted");
 
@@ -23,7 +22,6 @@ export const onMIDISuccess = (access, socket) => {
   // Connect to all MIDI inputs
   const inputs = midiAccess.inputs.values();
   for (let input = inputs.next(); input && !input.done; input = inputs.next()) {
-    //does this work?
     input.value.onmidimessage = (message) => onMIDIMessage(socket, message);
 
     console.log(

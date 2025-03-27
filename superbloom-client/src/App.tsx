@@ -1,14 +1,21 @@
-import { useState } from "react";
 import "./App.css";
-import { WebSocketConnectionStatus } from "./components/webSocketConnectionStatus";
+import { AppHeader } from "./components/AppHeader";
+import { WebSocketConnectionStatus } from "./components/WebSocketConnectionStatus";
+import styled from "@emotion/styled";
+
+const StyledAppContainer = styled.div({
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  gap: "10px",
+});
 
 function App() {
-  const [count, setCount] = useState(0);
-
   return (
-    <>
+    <StyledAppContainer>
+      <AppHeader />
       <WebSocketConnectionStatus />
-    </>
+    </StyledAppContainer>
   );
 }
 

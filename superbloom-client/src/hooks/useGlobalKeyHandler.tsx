@@ -44,7 +44,6 @@ function handleKeyUp(socket, e) {
 
 export const useGlobalKeyHandler = ({ socket }) => {
   useEffect(() => {
-    console.log("apply keyhandler");
     const keyDownListener = (e) => handleKeyDown(socket, e);
     const keyUpListener = (e) => handleKeyUp(socket, e);
 
